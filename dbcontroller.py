@@ -8,10 +8,16 @@ def mysql_connect(host, user, passwd, db, charset='utf8'):
 
 
 def select_latest(conn, cur, dev_mac, rpimac):
-    cur.execute("""SELECT a.id, a.macaddr, a.pwr, a.distance, a.rpimac
-                   FROM distance AS a INNER JOIN
-                   (SELECT MAX(id) AS latest FROM distance GROUP BY macaddr, rpimac) AS b
-                   ON a.id = b.latest AND macaddr=%s AND rpimac=%s""", (dev_mac, rpimac))
+    print(dev_mac, rpimac)
+    cur.execute("""SELECT *
+                   FROM distance AS m
+                   WHERE id = (
+                      SELECT MAX(id) FROM distance as s
+                      WHERE s.macaddr=%s AND (s.rpimac=%s OR s.rpimac=%s)
+                    )
+                   """, (dev_mac, rpimac[0], rpimac[1]))
     conn.commit()
-    return cur.fetchone()
+    data = cur.fetchone()
+    print("DB:{}".format(data["id"]))
+    return data
 
