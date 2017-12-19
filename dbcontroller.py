@@ -8,7 +8,6 @@ def mysql_connect(host, user, passwd, db, charset='utf8'):
 
 
 def select_latest(conn, cur, dev_mac, rpimac):
-    print(dev_mac, rpimac)
     cur.execute("""SELECT *
                    FROM distance AS m
                    WHERE id = (
@@ -18,6 +17,6 @@ def select_latest(conn, cur, dev_mac, rpimac):
                    """, (dev_mac, rpimac[0], rpimac[1]))
     conn.commit()
     data = cur.fetchone()
-    print("DB:{}".format(data["id"]))
+    print("DB:{}, pwr:{}".format(data["id"], data["pwr"]))
     return data
 
