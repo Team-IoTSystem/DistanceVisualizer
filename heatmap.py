@@ -123,12 +123,21 @@ class Device:
         dot_per_meter = int(squares / map_range)
         x_ary = []
         y_ary = []
+        min_r = 100
         for i, circle in enumerate(circle_list):
-            circle_squ = [p*dot_per_meter for p in circle]
+            circle_squ = [p * dot_per_meter for p in circle]
             for x_squ, y_squ in product(range(squares), range(squares)):
-                if (x_squ-circle_squ[0])**2 + (y_squ-circle_squ[1])**2 <= circle_squ[2]**2:
+                r = (x_squ - circle_squ[0]) ** 2 + (y_squ - circle_squ[1]) ** 2
+                if r <= circle_squ[2] ** 2:
                     x_ary.append(x_squ / dot_per_meter)
                     y_ary.append(y_squ / dot_per_meter)
+                if r < min_r:
+                    x_min = x_squ
+                    y_min = y_squ
+                    min_r = r
+        if not x_ary or not y_ary:
+            x_ary.append(x_min)
+            y_ary.append(y_min)
         return x_ary, y_ary
 
 
