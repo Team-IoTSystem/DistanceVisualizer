@@ -134,6 +134,7 @@ class Device:
 
 def main(argv):
     debug = True
+    map_margin = 1
     devlist = []
     for macaddr in argv[1:]:
         dev = Device(macaddr)
@@ -161,7 +162,7 @@ def main(argv):
                 x, y = dev.make_histogram(dev.range_circle_list)
                 plt.clf()
                 plt.ion()
-                plt.hist2d(x, y, bins=5, range=[[0, map_range], [0, map_range]])
+                plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
                 xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
                 ycoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[1])
                 plt.text(xcoord, ycoord, dev.hostname, fontsize=15, color="white")
