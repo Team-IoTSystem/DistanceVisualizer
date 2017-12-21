@@ -149,8 +149,8 @@ def main(argv):
         dev = Device(macaddr)
         devlist.append(dev)
         if debug:
-            dev.macaddr = "84:89:AD:8D:85:F6"
-            dev.hostname = "iPhone"
+            dev.macaddr = "30:AE:A4:03:8A:44"
+            dev.devname = "ESP"
 
     conn, cur = dbcontroller.mysql_connect(host, user, passwd, db)
     try:
@@ -174,7 +174,7 @@ def main(argv):
                 plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
                 xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
                 ycoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[1])
-                plt.text(xcoord, ycoord, dev.hostname, fontsize=15, color="white")
+                plt.text(xcoord, ycoord, dev.devname, fontsize=15, color="white")
             plt.colorbar()
             plt.scatter([rpi_a_coor[0], rpi_b_coor[0], rpi_c_coor[0]], [rpi_a_coor[1], rpi_b_coor[1], rpi_c_coor[1]], s=50, c='red')
             plt.axes().set_aspect('equal', 'datalim')
