@@ -169,11 +169,7 @@ def main(argv):
             plt.colorbar()
             plt.scatter([rpi_a_coor[0], rpi_b_coor[0], rpi_c_coor[0]], [rpi_a_coor[1], rpi_b_coor[1], rpi_c_coor[1]], s=50, c='red')
             plt.axes().set_aspect('equal', 'datalim')
-            plt.savefig("position.png")
-            with open('heatmap.html', 'w') as fout:
-                fout.write(mpld3.fig_to_html(plt.gcf()))
-            plt.pause(5)
-            plt.clf()
+            return mpld3.fig_to_html(plt.gcf())
 
     except KeyboardInterrupt:
         plt.close()
