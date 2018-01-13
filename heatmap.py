@@ -11,7 +11,7 @@ import mpld3
 # 各RPIの座標
 rpi_a_coor = [0, 0]
 rpi_b_coor = [0, 5]
-rpi_c_coor = [3.5, 5 / 2]
+rpi_c_coor = [3.5, 2.5]
 
 # ヒートマップ表示範囲[m]
 map_range = 5
@@ -144,13 +144,14 @@ class Device:
 def main(argv):
     debug = True
     map_margin = 1
-    devlist = []
-    for macaddr in argv[1:]:
-        dev = Device(macaddr)
-        devlist.append(dev)
-        if debug:
-            dev.macaddr = "30:AE:A4:03:8A:44"
-            dev.devname = "ESP"
+    if debug:
+        dev = Device("30:AE:A4:03:8A:44")
+        dev.devname = "ESP"
+    else:
+        devlist = []
+        for macaddr in argv[1:]:
+            dev = Device(macaddr)
+            devlist.append(dev)
 
     conn, cur = dbcontroller.mysql_connect(host, user, passwd, db)
     try:
@@ -174,14 +175,13 @@ def main(argv):
                 plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
                 xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
                 ycoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[1])
-                plt.text(xcoord, ycoord, dev.devname, fontsize=15, color="white")
+                plt.text(xcoord, ycoord, dev.devname, fontsize=20, color="white")
             plt.colorbar()
             plt.scatter([rpi_a_coor[0], rpi_b_coor[0], rpi_c_coor[0]], [rpi_a_coor[1], rpi_b_coor[1], rpi_c_coor[1]], s=50, c='red')
             plt.axes().set_aspect('equal', 'datalim')
             plt.savefig("position.png")
             with open('heatmap.html', 'w') as fout:
                 fout.write(mpld3.fig_to_html(plt.gcf()))
-                # TODO DBに送信
             plt.pause(5)
 
     except KeyboardInterrupt:
