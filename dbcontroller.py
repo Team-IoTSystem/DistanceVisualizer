@@ -25,3 +25,4 @@ def select_all(conn, cur, dev_mac, rpimac):
     cur.execute("""SELECT * FROM distance WHERE macaddr=%s AND rpimac=%s""", (dev_mac, rpimac))
     conn.commit()
     return cur.fetchone()
+

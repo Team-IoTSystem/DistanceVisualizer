@@ -141,35 +141,34 @@ def main(argv):
 
     conn, cur = dbcontroller.mysql_connect(host, user, passwd, db)
     try:
-        while True:
-            for dev in devlist:
-                data_a = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_a_mac)
-                data_b = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_b_mac)
-                data_c = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_c_mac)
-                if (data_a and data_b and data_c) == None:
-                    continue
-                dev.put_data_a(data_a)
-                dev.put_data_b(data_b)
-                dev.put_data_c(data_c)
+        for dev in devlist:
+            data_a = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_a_mac)
+            data_b = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_b_mac)
+            data_c = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_c_mac)
+            if (data_a and data_b and data_c) == None:
+                continue
+            dev.put_data_a(data_a)
+            dev.put_data_b(data_b)
+            dev.put_data_c(data_c)
 
-                print("#a:{}  #b{}  #c{}".format(dev.get_moving_average_of_dist(dev.data_a_list), dev.get_moving_average_of_dist(dev.data_b_list), dev.get_moving_average_of_dist(dev.data_c_list), ))
-                # n点で移動平均をとった距離データを元に3辺測位をする
-                dev.coordinate = trilateration(
-                    dev.get_moving_average_of_dist(dev.data_a_list),
-                    dev.get_moving_average_of_dist(dev.data_b_list),
-                    dev.get_moving_average_of_dist(dev.data_c_list),
-                )
-                dev.put_range_circle(dev.coordinate)
-                x, y = dev.make_histogram(dev.range_circle_list)
-                plt.ion()
-                plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
-                xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
-                ycoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[1])
-                plt.text(xcoord, ycoord, dev.devname, fontsize=20, color="white")
-            plt.colorbar()
-            plt.scatter([rpi_a_coor[0], rpi_b_coor[0], rpi_c_coor[0]], [rpi_a_coor[1], rpi_b_coor[1], rpi_c_coor[1]], s=50, c='red')
-            plt.axes().set_aspect('equal', 'datalim')
-            return mpld3.fig_to_html(plt.gcf())
+            print("#a:{}  #b{}  #c{}".format(dev.get_moving_average_of_dist(dev.data_a_list), dev.get_moving_average_of_dist(dev.data_b_list), dev.get_moving_average_of_dist(dev.data_c_list), ))
+            # n点で移動平均をとった距離データを元に3辺測位をする
+            dev.coordinate = trilateration(
+                dev.get_moving_average_of_dist(dev.data_a_list),
+                dev.get_moving_average_of_dist(dev.data_b_list),
+                dev.get_moving_average_of_dist(dev.data_c_list),
+            )
+            dev.put_range_circle(dev.coordinate)
+            x, y = dev.make_histogram(dev.range_circle_list)
+            plt.ion()
+            plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
+            xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
+            ycoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[1])
+            plt.text(xcoord, ycoord, dev.devname, fontsize=20, color="white")
+        plt.colorbar()
+        plt.scatter([rpi_a_coor[0], rpi_b_coor[0], rpi_c_coor[0]], [rpi_a_coor[1], rpi_b_coor[1], rpi_c_coor[1]], s=50, c='red')
+        plt.axes().set_aspect('equal', 'datalim')
+        return mpld3.fig_to_html(plt.gcf())
 
     except KeyboardInterrupt:
         plt.close()
