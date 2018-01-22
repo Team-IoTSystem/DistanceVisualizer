@@ -126,25 +126,31 @@ class Device:
 
 
 def main(argv):
-    debug = True
+    debug = False
     map_margin = 1
+    devlist = []
     if debug:
         dev = Device("30:AE:A4:03:8A:44")
         dev.devname = "ESP"
     else:
-        for macaddr in argv[1:]:
+        for i, macaddr in enumerate(argv[1:]):
             dev = Device(macaddr)
+            dev.devname = "Device_{}".format(i+1)
+            devlist.append(dev)
 
-    devlist = []
-    devlist.append(dev)
 
     conn, cur = dbcontroller.mysql_connect(host, user, passwd, db)
     try:
         while True:
             for dev in devlist:
-                dev.put_data_a(dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_a_mac))
-                dev.put_data_b(dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_b_mac))
-                dev.put_data_c(dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_c_mac))
+                data_a = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_a_mac)
+                data_b = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_b_mac)
+                data_c = dbcontroller.select_latest(conn, cur, dev.macaddr, rpi_c_mac)
+                if (data_a and data_b and data_c) == None:
+                    continue
+                dev.put_data_a(data_a)
+                dev.put_data_b(data_b)
+                dev.put_data_c(data_c)
 
                 print("#a:{}  #b{}  #c{}".format(dev.get_moving_average_of_dist(dev.data_a_list), dev.get_moving_average_of_dist(dev.data_b_list), dev.get_moving_average_of_dist(dev.data_c_list), ))
                 # n点で移動平均をとった距離データを元に3辺測位をする
@@ -155,7 +161,6 @@ def main(argv):
                 )
                 dev.put_range_circle(dev.coordinate)
                 x, y = dev.make_histogram(dev.range_circle_list)
-                plt.clf()
                 plt.ion()
                 plt.hist2d(x, y, bins=map_range+map_margin*2, range=[[0-map_margin, map_range+map_margin], [0-map_margin, map_range+map_margin]])
                 xcoord = float(dev.get_moving_average_of_circle(dev.range_circle_list)[0])
@@ -168,6 +173,7 @@ def main(argv):
             with open('heatmap.html', 'w') as fout:
                 fout.write(mpld3.fig_to_html(plt.gcf()))
             plt.pause(5)
+            plt.clf()
 
     except KeyboardInterrupt:
         plt.close()
