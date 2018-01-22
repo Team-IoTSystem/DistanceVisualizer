@@ -101,22 +101,6 @@ class Device:
             sum_r += item[2]
         return sum_x / self.CIRCLE_DATA_SIZE, sum_y / self.CIRCLE_DATA_SIZE, sum_r / self.CIRCLE_DATA_SIZE
 
-    def make_heatmap(self, circle_list):
-        squares = 40
-        weight = 10
-        dot_per_meter = int(squares / map_range)
-        map_ary = [[0]*squares for s in range(squares)]
-        for i, circle in enumerate(circle_list):
-            circle_squ = [int(p * dot_per_meter) for p in circle]
-            y_min = circle_squ[1] - circle_squ[2]
-            y_max = circle_squ[1] + circle_squ[2]
-            for y in range(squares):
-                if y_min < y < y_max:
-                    for x in range(squares):
-                        if (x-circle_squ[0])**2 + (y-circle_squ[1])**2 < circle_squ[2]**2:
-                            map_ary[x][y] += weight
-        return map_ary
-
     def make_histogram(self, circle_list):
         # ドットの数
         squares = 5
@@ -148,10 +132,11 @@ def main(argv):
         dev = Device("30:AE:A4:03:8A:44")
         dev.devname = "ESP"
     else:
-        devlist = []
         for macaddr in argv[1:]:
             dev = Device(macaddr)
-            devlist.append(dev)
+
+    devlist = []
+    devlist.append(dev)
 
     conn, cur = dbcontroller.mysql_connect(host, user, passwd, db)
     try:
